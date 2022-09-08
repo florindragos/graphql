@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/shurcooL/graphql/internal/jsonutil"
+	"github.com/florindragos/graphql/jsonutil"
 	"golang.org/x/net/context/ctxhttp"
 )
 
@@ -72,7 +72,14 @@ func (c *Client) do(ctx context.Context, op operationType, v interface{}, variab
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		body, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("non-200 OK status code: %v body: %q", resp.Status, body)
+		if resp.StatusCode == http.StatusForbidden {
+			retryHeader := resp.Header.Get("Retry-After")
+			if retryHeader != "" {
+				return fmt.Errorf("github secondary rate limit hit: Retry-After: %s body: %q", retryHeader, body)
+			}
+		}
+
+		return fmt.Errorf("non-200 OK status code: %v body: %q headers: %q", resp.Status, body, resp.Header)
 	}
 	var out struct {
 		Data   *json.RawMessage

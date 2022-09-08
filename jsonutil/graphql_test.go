@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/shurcooL/graphql"
-	"github.com/shurcooL/graphql/internal/jsonutil"
+	"github.com/florindragos/graphql"
+	"github.com/florindragos/graphql/jsonutil"
 )
 
 func TestUnmarshalGraphQL(t *testing.T) {
